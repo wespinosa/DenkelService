@@ -12,7 +12,7 @@
                                         <h2>Clientes</h2>
                                         <hr />
                                         <p>Mantenimiento y Consulta de Clientes</p>
-                                        <a class="boton" href="?modulo=clientes&op=viewcliente" title="Click para Ingresar">Ingresar</a>
+                                        <a class="boton" href="?modulo=clientes&op=vercliente" title="Click para Ingresar">Ingresar</a>
                                 </li>
                                 <li>
                                         <img src="images/proveedores.png" width="200" height="150" alt="Imagen dos" />
@@ -1084,4 +1084,38 @@
                                     );";
                              $rows = $dbmysql->query($sql2);
             
+        }
+        function auditoria($modulo,$descripcion,$tipo){
+             global $dbmysql;
+             $date=date('Y-m-d');
+             $hora=date('H:i:s');
+             $usuario=$_SESSION["usu_usuario"];
+             $equipo=  gethostname();
+             $ip=ObtenerIP();
+            $sql="INSERT INTO `gbauditoria` (
+                    `aud_codigo` ,
+                    `aud_modulo` ,
+                    `aud_descripcion` ,
+                    `aud_tipo` ,
+                    `aud_equipo` ,
+                    `aud_ip` ,
+                    `aud_usuario` ,
+                    `aud_fecha` ,
+                    `aud_hora`
+                    )
+                    VALUES (NULL,'$modulo','$descripcion','$tipo','$equipo','$ip','$usuario','$date','$hora');";
+            $rows = $dbmysql->query($sql);
+        }
+        function ObtenerIP(){
+           if (getenv("HTTP_CLIENT_IP") && strcasecmp(getenv("HTTP_CLIENT_IP"),"unknown"))
+                   $ip = getenv("HTTP_CLIENT_IP");
+           else if (getenv("HTTP_X_FORWARDED_FOR") && strcasecmp(getenv("HTTP_X_FORWARDED_FOR"), "unknown"))
+                   $ip = getenv("HTTP_X_FORWARDED_FOR");
+           else if (getenv("REMOTE_ADDR") && strcasecmp(getenv("REMOTE_ADDR"), "unknown"))
+                   $ip = getenv("REMOTE_ADDR");
+           else if (isset($_SERVER['REMOTE_ADDR']) && $_SERVER['REMOTE_ADDR'] && strcasecmp($_SERVER['REMOTE_ADDR'], "unknown"))
+                   $ip = $_SERVER['REMOTE_ADDR'];
+           else
+                   $ip = "IP desconocida";
+           return($ip);
         }

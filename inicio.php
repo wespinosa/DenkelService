@@ -53,7 +53,7 @@ $modulos = isset($_GET['modulo'])?$_GET['modulo']:'ninguno';
                                         case 'editcliente':
 							$titulo = 'Ver todos los Clientes';
                                                         $codigo = isset($_GET['codigo'])?$_GET['codigo']:0;
-							$content = frm_cliente($codigo);
+							$content_izquierdo = frm_cliente($codigo);
 						break;
                                         case 'eliminacliente':
 							$titulo = 'Ver todos los Clientes';
@@ -385,7 +385,7 @@ $modulos = isset($_GET['modulo'])?$_GET['modulo']:'ninguno';
           </script>  
            
            <!-- SCRIPT PARA CREAR TRAMITES -->
-           <script>
+            <script>
           $(function() {
             var cliente = $( "#codigo_cliente" ),
                 proveedor = $( "#codigo_proveedor" ),
@@ -510,6 +510,124 @@ $modulos = isset($_GET['modulo'])?$_GET['modulo']:'ninguno';
                     
                   },
                   
+                  Cancel: function() {
+                    $( this ).dialog( "close" );
+                  }
+                },
+                close: function() {
+                  allFields.val( "" ).removeClass( "ui-state-error" );
+                }
+              });
+
+              $( "#create-user" )
+                .button()
+                .click(function() {
+                  $( "#dialog-form" ).dialog( "open" );
+                });
+            });
+       </script>
+           <!--INSERTAR CLIENTES-->
+            <script>
+          $(function() {
+            var cedula = $( "#cedula" ),
+                tipo = $( "#tipocliente" ),
+                nombre = $( "#nombre" ),
+                telefono = $( "#telefono" ),
+                contacto = $( "#contacto" ),
+                telefonoc = $( "#telefonoc" ),
+                emailc = $( "#emailc" ),
+                direccion = $( "#direccion" ),
+                allFields = $( [] ).add( cedula ).add( tipo ).add( nombre ).add( telefono ).add( contacto ).add( telefonoc ).add( direccion ).add( emailc ),
+                tips = $( ".validateTips" );
+
+              function updateTips( t ) {
+                tips
+                  .text( t )
+                  .addClass( "ui-state-highlight" );
+                setTimeout(function() {
+                  tips.removeClass( "ui-state-highlight", 1500 );
+                }, 500 );
+              }
+
+              function checkLength( o, n, min, max ) {
+                if ( o.val().length > max || o.val().length < min ) {
+                  o.addClass( "ui-state-error" );
+                  updateTips( "El Tamaño de " + n + " debe estar entre " +
+                    min + " y " + max + " Caracteres." );
+                  return false;
+                } else {
+                  return true;
+                }
+              }
+
+              function checkRegexp( o, regexp, n ) {
+                if ( !( regexp.test( o.val() ) ) ) {
+                  o.addClass( "ui-state-error" );
+                  updateTips( n );
+                  return false;
+                } else {
+                  return true;
+                }
+              }
+
+              $( "#dialog-form" ).dialog({
+                  show: {
+                  effect: "blind",
+                  duration: 1000
+                },
+                hide: {
+                  effect: "explode",
+                  duration: 1000
+                },
+                autoOpen: false,
+                height: 550,
+                width: 500,
+                modal: true,
+                buttons: {
+                  "Crear Cliente": function() {
+                    var bValid = true;
+                    allFields.removeClass( "ui-state-error" );
+
+                    bValid = bValid && checkLength( cedula, "cedula", 10, 13 );
+                    bValid = bValid && checkLength( telefono, "telefono", 7, 9 );
+
+                    bValid = bValid && checkRegexp( cedula, /^([0-9])+$/i, "Cedula consta de Numeros del 0-9." );
+                    bValid = bValid && checkRegexp( telefono, /^([0-9])+$/i, "Telefono Contacto de Numeros del 0-9." );
+
+                    if ( bValid ) {
+                      $( "#users tbody" ).append( "<tr>" +
+                        "<td>" + cedula.val() + "</td>" +
+                        "<td>" + tipo.val() + "</td>" +
+                        "<td>" + nombre.val() + "</td>" +
+                        "<td>" + telefono.val() + "</td>" +
+                        "<td>" + contacto.val() + "</td>" +
+                        "<td>" + telefonoc.val() + "</td>" +
+                        "<td>" + emailc.val() + "</td>" +
+                        "<td>" + direccion.val() + "</td>" +
+                      "</tr>" );
+             
+              $.post("includes/Inserciones/inserta_cliente.php",{
+                  cedula:cedula.val(),
+                  tipo:tipo.val(),
+                  nombre:nombre.val(), 
+                  telefono:telefono.val(), 
+                  contacto:contacto.val(), 
+                  telefonoc:telefonoc.val(),
+                  emailc:emailc.val(),
+                  direccion:direccion.val(),
+                },function(respuesta){
+                    if(respuesta=='correcto'){
+                    $( this ).dialog( "close" );
+                    alert('El Cliente:  '+ nombre +' Se Insertado Con Éxito!!!'); //Mostramos un alert del resultado devuelto por el php
+                    location.reload();
+                    }else{
+                            alert(respuesta);
+//                            alert('Existe Algun Error... No se Realizo la Inserción..'); //Mostramos un alert del resultado devuelto por el php
+                        
+                    }
+                    });
+                    }
+                  },
                   Cancel: function() {
                     $( this ).dialog( "close" );
                   }
